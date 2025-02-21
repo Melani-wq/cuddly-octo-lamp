@@ -3,8 +3,17 @@ const rateWeek = 1250;
 const rateSaturday = 1500;
 const days = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
-// Objeto para almacenar los registros (en memoria o en localStorage)
-let schedules = {};
+// Función para verificar si es domingo y resetear registros
+function resetearSemana() {
+  const today = new Date();
+  if (today.getDay() === 0) { // 0 es Domingo en JavaScript
+    localStorage.removeItem("schedules");
+  }
+}
+
+// Cargar registros desde localStorage después de verificar el reinicio
+resetearSemana();
+let schedules = JSON.parse(localStorage.getItem("schedules")) || {};
 
 document.getElementById("registro-form").addEventListener("submit", function(e) {
   e.preventDefault();
@@ -19,13 +28,11 @@ document.getElementById("registro-form").addEventListener("submit", function(e) 
     return;
   }
   
-  // Verificar que la hora de salida sea mayor que la de entrada
   if (salidaStr <= entradaStr) {
     alert("La hora de salida debe ser mayor que la de entrada");
     return;
   }
   
-  // Convertir las horas a números decimales
   const [entradaHour, entradaMin] = entradaStr.split(":").map(Number);
   const [salidaHour, salidaMin] = salidaStr.split(":").map(Number);
   
@@ -33,11 +40,9 @@ document.getElementById("registro-form").addEventListener("submit", function(e) 
   const salidaDecimal = salidaHour + salidaMin / 60;
   const horasTrabajadas = salidaDecimal - entradaDecimal;
   
-  // Determinar tarifa según el día
   const tarifa = day === "Sábado" ? rateSaturday : rateWeek;
   const pago = Math.round(horasTrabajadas * tarifa * 100) / 100;
   
-  // Guardar registro en el objeto schedules
   if (!schedules[employee]) {
     schedules[employee] = {};
   }
@@ -48,10 +53,10 @@ document.getElementById("registro-form").addEventListener("submit", function(e) 
     pago: pago
   };
 
-  // Actualizar la tabla de registros
+  // Guardar en localStorage
+  localStorage.setItem("schedules", JSON.stringify(schedules));
+  
   actualizarTabla();
-
-  // Limpiar formulario
   e.target.reset();
 });
 
@@ -99,3 +104,6 @@ function verResumen(employee) {
   resumen += `Total: ${totalHoras.toFixed(2)} hrs, $${totalPago.toFixed(2)}`;
   alert(resumen);
 }
+
+// Cargar la tabla al cargar la página
+document.addEventListener("DOMContentLoaded", actualizarTabla);
