@@ -3,17 +3,23 @@ const rateWeek = 1250;
 const rateSaturday = 1500;
 const days = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
-// Función para resetear los registros una sola vez al inicio de la semana (lunes)
+// Función para obtener el lunes de la semana actual
+function getMonday(d) {
+  d = new Date(d);
+  const day = d.getDay();
+  // Si es domingo (0), restamos 6; de lo contrario, restamos (day - 1)
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(d.setDate(diff));
+}
+
+// Función para resetear los registros si pertenecen a una semana anterior
 function resetearSemana() {
   const today = new Date();
-  // En JavaScript, getDay() === 1 significa lunes
-  if (today.getDay() === 1) {
-    const todayStr = today.toDateString();
-    const lastReset = localStorage.getItem("lastReset");
-    if (lastReset !== todayStr) {
-      localStorage.removeItem("schedules");
-      localStorage.setItem("lastReset", todayStr);
-    }
+  const mondayActual = getMonday(today).toDateString();
+  const lastReset = localStorage.getItem("lastReset");
+  if (lastReset !== mondayActual) {
+    localStorage.removeItem("schedules");
+    localStorage.setItem("lastReset", mondayActual);
   }
 }
 
@@ -82,8 +88,7 @@ function actualizarTabla() {
     html += `<tr><td>${employee}</td>`;
     days.forEach(day => {
       if (schedules[employee][day]) {
-        html += `<td>${schedules[employee][day].horas} hrs<br>
-                    $${schedules[employee][day].pago}</td>`;
+        html += `<td>${schedules[employee][day].horas} hrs<br>$${schedules[employee][day].pago}</td>`;
       } else {
         html += `<td>-</td>`;
       }
