@@ -3,16 +3,24 @@ const rateWeek = 1250;
 const rateSaturday = 1500;
 const days = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
-// Función para verificar si es domingo y resetear registros
+// Función para resetear los registros una sola vez al inicio de la semana (lunes)
 function resetearSemana() {
   const today = new Date();
-  if (today.getDay() === 0) { // 0 es Domingo en JavaScript
-    localStorage.removeItem("schedules");
+  // En JavaScript, getDay() === 1 significa lunes
+  if (today.getDay() === 1) {
+    const todayStr = today.toDateString();
+    const lastReset = localStorage.getItem("lastReset");
+    if (lastReset !== todayStr) {
+      localStorage.removeItem("schedules");
+      localStorage.setItem("lastReset", todayStr);
+    }
   }
 }
 
-// Cargar registros desde localStorage después de verificar el reinicio
+// Ejecutamos el reinicio al cargar la página
 resetearSemana();
+
+// Cargar registros desde localStorage
 let schedules = JSON.parse(localStorage.getItem("schedules")) || {};
 
 document.getElementById("registro-form").addEventListener("submit", function(e) {
