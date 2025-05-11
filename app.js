@@ -1,6 +1,6 @@
 // Tarifas fijas
-const rateWeek = 1500;
-const rateSaturday = 1500;
+const rateWeek = 1600;
+const rateSaturday = 1600;
 const days = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
 
 // -------------------------------------------------------------------
